@@ -4,7 +4,11 @@
   padding: 2rem;
   text-align: center;
 }
-
+.textBox{
+  font-family: 'Courier New', Courier, monospace;
+  text-align: center;
+  background-color: aqua;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
