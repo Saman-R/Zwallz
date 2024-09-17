@@ -1,23 +1,27 @@
-// src/components/ImageGallery.jsx
 import React, { useState, useEffect } from 'react';
-
+import axios from 'axios';
 const ImageGallery = () => {
+    const [images, setImages] = useState([]);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const images = [
-        "https://i.pinimg.com/736x/8a/4b/9a/8a4b9a90c9f5b3f920c7d6a22d355a05.jpg",
-        "https://i.pinimg.com/736x/c0/97/42/c09742d2d1ecfac1376628f4ff18182a.jpg",
-        "https://i.pinimg.com/474x/3a/a2/21/3aa2216240f7920fa4eccfd2851c8b71.jpg",
-        "https://i.pinimg.com/564x/9a/83/d2/9a83d298d78eb8843e2c72e3e331a7f3.jpg",
-        "https://i.pinimg.com/564x/37/f5/d1/37f5d19f215c97c64df8817ba8511920.jpg",
-        "https://i.pinimg.com/736x/53/17/21/53172113f35377654692d4c84797bb45.jpg",
-        "https://i.pinimg.com/564x/50/05/b8/5005b83ca13eb4b6fb3abcf59be605db.jpg",
-        "https://i.pinimg.com/736x/7b/41/da/7b41da0a02d2a7e514a43725b9979f0d.jpg",
-        "https://i.pinimg.com/564x/07/ef/3a/07ef3abab89a639d1c0aed657f63e381.jpg",
-        "https://i.pinimg.com/564x/dd/cd/9f/ddcd9f077f30dc274c5eb85bb541d79b.jpg",
-        "https://i.pinimg.com/564x/7c/d0/8a/7cd08ae7a7fa867ce80ac12651a9a62d.jpg",
-        "https://i.pinimg.com/736x/76/09/28/7609287471abb4bd05403fccc897ce11.jpg"
-    ];
+    useEffect(() => {
+        // Fetch pictures from the backend API
+        const fetchImages = async () => {
+            try {
+                const response = await axios.get('http://localhost:5555/pictures');
+                setImages(response.data); // Assuming the response contains an array of image URLs
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching images:', err);
+                setError('Failed to load images');
+                setLoading(false);
+            }
+        };
+
+        fetchImages();
+    }, []);
 
     const chunkArray = (array, size) => {
         const result = [];
@@ -52,6 +56,14 @@ const ImageGallery = () => {
         };
     }, [selectedImage]);
 
+    if (loading) {
+        return <p>Loading images...</p>;
+    }
+
+    if (error) {
+        return <p>{error}</p>;
+    }
+
     return (
         <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
@@ -61,9 +73,9 @@ const ImageGallery = () => {
                             <div key={index} className="overflow-hidden rounded-lg shadow-lg">
                                 <img
                                     className="w-full h-80 object-cover cursor-pointer transition-transform duration-300 transform hover:scale-105"
-                                    src={image}
+                                    src={image.url} // Assuming the backend sends an array of objects with a 'url' field
                                     alt={`Gallery image ${index + 1}`}
-                                    onClick={() => handleImageClick(image)}
+                                    onClick={() => handleImageClick(image.url)}
                                 />
                             </div>
                         ))}

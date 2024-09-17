@@ -1,17 +1,42 @@
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import { PORT, mongoDBURL } from './config.js';
+import mongoose from 'mongoose';
+import picturesRoute from './routes/pictureRoutes.js';
+import cors from 'cors';
 
-import express from "express";
-import cors from "cors";
-import records from "./routes/record.js";
 
+// Load environment variables from .env file
 
-const PORT = process.env.PORT || 5050;
 const app = express();
 
-app.use(cors());
+// Middleware for parsing request body
 app.use(express.json());
-app.use("/record", records);
 
-// start the Express server
-app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+// Middleware to handle CORS policy
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type'],
+}));
+
+// Root endpoint
+app.get('/', (request, response) => {
+    return response.status(200).send('Server is running');
 });
+
+// Use the pictures route
+app.use('/pictures', picturesRoute);
+
+// Connect Mongoose and start server
+mongoose.connect(mongoDBURL)
+    .then(() => {
+        console.log('Connected to MongoDB');
+        app.listen(PORT, () => {
+            console.log(`App is listening on Port: ${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.log('Database connection error:', error);
+    });

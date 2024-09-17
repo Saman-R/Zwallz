@@ -1,6 +1,6 @@
-// src/App.jsx
-import React from 'react';
+
 import ImageGallery from './components/imageGallery';
+
 
 const App = () => {
   return (
